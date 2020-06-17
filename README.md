@@ -121,7 +121,7 @@ nguage":"Java","resultClassName":"UserServiceGraphQLProvider","resultClassPackag
 [INFO] GraphQL API class generated at ./src/test/java/com/maimas/generated
 ````
 
-### How yo use generated API:
+### How to use generated API:
 - Note: generated class name is `UserServiceGraphQLProvider` 
 
 > Mutation - create user
