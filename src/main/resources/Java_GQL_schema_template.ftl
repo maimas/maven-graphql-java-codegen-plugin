@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 
 /**
@@ -54,6 +55,32 @@ public static class Types {
 </#list>
 <#--OBJECT generation }-->
 
+<#--OBJECT fragment generation {-->
+<#list schema.types as type>
+    <#if isUserObjectType(type)>
+        <#if (type.description??) && type.description!="">
+            /**
+            * ${type.description}
+            */
+        </#if>
+        public static class ${type.name}Fragment {
+        private final ResultFragment resultFragment = new ResultFragment();
+
+        <#list type.fields as field>
+            public ${type.name}Fragment ${field.name}() {
+            resultFragment.add(FragmentField.of("${field.name}"));
+            return this;
+            }
+        </#list>
+
+        public ResultFragment getFragment() {
+        return resultFragment;
+        }
+        }
+    </#if>
+</#list>
+<#--OBJECT fragment generation }-->
+
 <#--INPUT_OBJECT generation {-->
 <#list schema.types as type>
     <#if type.name!="" && !type.name?starts_with("__") && typeKindEquals(type,"INPUT_OBJECT") && !type.name?upper_case?matches("QUERY|MUTATION")>
@@ -81,14 +108,39 @@ public static class Types {
             *
             * @return - graphql query string.
             */
-            public GQLQuery ${field.name}(${buildMethodArguments(field)}, FragmentField... fragmentFields){
+            public GQLQuery ${field.name}(Consumer< ${getAsFirstCapitalized(field.name)}Args> input,
+                                          Consumer< ${getFieldType(field, "Types.")}Fragment> output){
 
-            Function function = new Function(FunctionType.${getTypeName(type)}, "${field.name}")
-            .arguments(${buildFragmentArguments(field)})
-            .resultFragment(fragmentFields)
+            final ${getAsFirstCapitalized(field.name)}Args args = new ${getAsFirstCapitalized(field.name)}Args();
+            input.accept(args);
+            final Arguments arguments = args.getArguments();
+
+            final ${getFieldType(field, "Types.")}Fragment fragment = new ${getFieldType(field, "Types.")}Fragment();
+            output.accept(fragment);
+            final ResultFragment resultFragment = fragment.getFragment();
+
+
+            GQLFunction function = new GQLFunction(GQLFunctionType.${getTypeName(type)}, "${field.name}")
+            .arguments(arguments)
+            .resultFragment(resultFragment)
             .returnType(new TypeReference<${getFieldType(field, "Types.")}>() {});
 
             return GQLQuery.from(function);
+            }
+
+            /**
+            * Arguments provider.
+            *
+            * @return - ${getAsFirstCapitalized(field.name)}Args for "${field.name}" operation.
+            */
+            public class ${getAsFirstCapitalized(field.name)}Args {
+            private Arguments arguments = new Arguments();
+
+            ${buildArgumentMethods(field)}
+
+            private Arguments getArguments() {
+            return arguments;
+            }
             }
 
         </#list>
@@ -104,6 +156,38 @@ ${gqlBuildersContent}
 }
 
 <#--Template funtions-->
+<#function getAsFirstCapitalized value>
+    <#if (value??)>
+        <#return value?cap_first>
+    <#else>
+        <#return "">
+    </#if>
+</#function>
+
+
+<#function buildArgumentMethods field>
+    <#local result="">
+    <#if (field.args??)>
+        <#assign argsSize = field.args?size>
+        <#list field.args as arg>
+            <#if (arg.name??)>
+                <#if isArgOptional(arg)>
+                    <#local result += "public "+getAsFirstCapitalized(field.name)+"Args "+arg.name+"(Optional<"+getFieldType(arg, "Types.")+"> "+arg.name+") {
+                    arguments.add(Argument.of(\""+arg.name+"\", "+arg.name+"));
+                    return this;
+                    }">
+                <#else>
+                    <#local result += "public "+getAsFirstCapitalized(field.name)+"Args "+arg.name+"("+getFieldType(arg, "Types.")+" "+arg.name+") {
+                    arguments.add(Argument.of(\""+arg.name+"\", "+arg.name+"));
+                    return this;
+                    }">
+                </#if>
+            </#if>
+        </#list>
+    </#if>
+    <#return result>
+</#function>
+
 <#function getFieldType field typePrefix>
     <#assign typeName = "">
     <#assign typeKind = "">

@@ -1,3 +1,8 @@
+
+    //--------------------------------------------------------------
+    //---------QueryBuilder Inner classes---------------------------
+    //--------------------------------------------------------------
+
     /**
      * GraphQL Query builder.
      * Generates a GraphQL query string from a <@code>Function</@code>
@@ -5,13 +10,13 @@
     public static class GQLQuery {
 
         private final ObjectMapper mapper = new ObjectMapper();
-        private Function function;
+        private GQLFunction function;
 
         private GQLQuery() {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         }
 
-        public static GQLQuery from(Function function) {
+        public static GQLQuery from(GQLFunction function) {
             GQLQuery query = new GQLQuery();
             query.function = function;
             return query;
@@ -41,9 +46,6 @@
 
     }
 
-    //--------------------------------------------------------------
-    //---------QueryBuilder Inner classes---------------------------
-    //--------------------------------------------------------------
 
     /**
      * Represents a function argument, and it's details.
@@ -102,22 +104,18 @@
         }
     }
 
+
     /**
      * A wrapper for the function arguments.
      */
     public static class Arguments {
-        private List<Argument> arguments = new ArrayList<>();
-
+        private LinkedHashSet<Argument> arguments = new LinkedHashSet<>();
 
         private Arguments() {
         }
 
-        private Arguments(Argument... arguments) {
-            this.arguments = Arrays.asList(arguments);
-        }
-
-        public static Arguments of(Argument... arguments) {
-            return new Arguments(arguments);
+        private void add(Argument argument) {
+            this.arguments.add(argument);
         }
 
         /**
@@ -177,12 +175,13 @@
         }
     }
 
+
     /**
      * Represents a filed information from a GraphQL fragment.
      */
     public static class FragmentField {
         private String name;
-        private List<FragmentField> fieldList = new ArrayList<>();
+        private LinkedHashSet<FragmentField> fieldList = new LinkedHashSet<>();
 
         private FragmentField() {
         }
@@ -204,21 +203,22 @@
             return name;
         }
 
-        public List<FragmentField> getFieldList() {
+        public LinkedHashSet<FragmentField> getFieldList() {
             return fieldList;
         }
     }
 
+
     /**
      * GraphQL function types.
      */
-    public enum FunctionType {
+    public enum GQLFunctionType {
         Query("query"),
         Mutation("mutation");
 
         private final String name;
 
-        FunctionType(final String name) {
+        GQLFunctionType(final String name) {
             this.name = name;
         }
 
@@ -232,33 +232,33 @@
      * This is a wrapper that represent a GraphQL function.
      * It contains all the information in order to build a query.
      */
-    public static class Function {
+    public static class GQLFunction {
         private TypeReference<?> resultType;
-        private FunctionType type;
+        private GQLFunctionType type;
         private String name;
         private Arguments arguments;
         private ResultFragment resultFragment;
 
-        private Function() {
+        private GQLFunction() {
         }
 
-        public Function(FunctionType type, String name) {
+        public GQLFunction(GQLFunctionType type, String name) {
             this.name = name;
             this.type = type;
         }
 
-        public Function returnType(TypeReference<?> resultType) {
+        public GQLFunction returnType(TypeReference<?> resultType) {
             this.resultType = resultType;
             return this;
         }
 
-        public Function arguments(Argument... arguments) {
-            this.arguments = Arguments.of(arguments);
+        public GQLFunction arguments(Arguments arguments) {
+            this.arguments = arguments;
             return this;
         }
 
-        public Function resultFragment(FragmentField... fields) {
-            this.resultFragment = ResultFragment.of(fields);
+        public GQLFunction resultFragment(ResultFragment fragment) {
+            this.resultFragment = fragment;
             return this;
         }
 
@@ -279,10 +279,11 @@
             return resultFragment;
         }
 
-        public FunctionType getType() {
+        public GQLFunctionType getType() {
             return type;
         }
     }
+
 
     /**
      * GraphQL expected result type after the query is executed.
@@ -290,26 +291,21 @@
      * However, it is useful to know the expected result type of <@code>Function</@code> that we want to execute.
      */
     public static class ResultFragment {
-        private List<FragmentField> fields = new ArrayList<>();
+        private LinkedHashSet<FragmentField> fields = new LinkedHashSet<>();
 
         private ResultFragment() {
         }
 
-        public static ResultFragment of(FragmentField... fields) {
-            ResultFragment resultFragment = new ResultFragment();
-            resultFragment.fields = Arrays.asList(fields);
-
-            if (resultFragment.fields.size() == 0) {
-                throw new IllegalArgumentException("Fragment should have at list one output field");
-            }
-            return resultFragment;
+        private ResultFragment add(FragmentField field) {
+            this.fields.add(field);
+            return this;
         }
 
         public String toString() {
             return getFieldString(fields);
         }
 
-        private String getFieldString(List<FragmentField> fields) {
+        private String getFieldString(LinkedHashSet<FragmentField> fields) {
             StringBuilder sb = new StringBuilder();
             fields.forEach(field -> {
                 sb.append(field.getName()).append(" ");
@@ -320,4 +316,3 @@
             return sb.toString();
         }
     }
-
