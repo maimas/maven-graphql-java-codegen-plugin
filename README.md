@@ -181,7 +181,7 @@ public class Examples {
                 input
                     .id("123123"),
                 output -> output
-                     .email(roles)
+                     .email()
                      .roles()
                      .name());
 
