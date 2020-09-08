@@ -167,6 +167,7 @@ public class Examples {
 > Query - get user by id
 
 ````
+Demo change
 //Imports from the Generated API
 import com.maimas.generated.UserServiceGraphQLProvider.Types.User;
 import static com.maimas.generated.UserServiceGraphQLProvider.*;
