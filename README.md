@@ -45,7 +45,7 @@ Types.UserInput userInput = new Types.UserInput();
         userInput.email = "tet11.test@test.com";
         userInput.password = "1234";
 
-GQLQuery updateQuery = new Mutation().create(
+GQLQuery upda teQuery = new Mutation().create(
                 input
                     .user(userInput),
                 output -> output
