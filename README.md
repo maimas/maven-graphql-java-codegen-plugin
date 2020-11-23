@@ -73,9 +73,9 @@ In your pom.xml under the ``build>plugins`` section add codegen plugin:
         <plugins>
         ....
             <plugin>
-                <groupId>com.maimas</groupId>
+                <groupId>com.github.maimas</groupId>
                 <artifactId>graphql-codegen</artifactId>
-                <version>2.0.2</version>
+                <version>2.0.3</version>
                 <configuration>
                     <servers>
                         <server>
