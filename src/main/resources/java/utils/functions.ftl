@@ -195,7 +195,7 @@
     <#if field.type.kind == "LIST" && field.type.ofType??>
         <#-- For List types, create a special fragment instance -->
         <#local innerType = resolveType(field.type.ofType, typePrefix)>
-        <#return "new List<" + innerType + ">Fragment()">
+        <#return "new ArrayList<>()">
     <#else>
         <#-- For non-List types, use the standard fragment instance -->
         <#return "new " + getFieldType(field, typePrefix) + "Fragment()">
