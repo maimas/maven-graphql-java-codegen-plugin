@@ -7,11 +7,11 @@
             * ${type.description}
             */
         </#if>
-        public static class List<${type.name}>Fragment {
+        public static class List${type.name}Fragment {
         private final ResultFragment resultFragment = new ResultFragment();
 
         <#-- Add method to use a nested fragment -->
-        public List<${type.name}>Fragment withFragment(Consumer<${type.name}Fragment> fragmentBuilder) {
+        public List${type.name}Fragment withFragment(Consumer<${type.name}Fragment> fragmentBuilder) {
             ${type.name}Fragment fragment = new ${type.name}Fragment();
             fragmentBuilder.accept(fragment);
             resultFragment.add(FragmentField.of("", fragment.getFragment()));

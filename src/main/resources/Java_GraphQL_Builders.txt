@@ -199,6 +199,13 @@
             return fragmentField;
         }
 
+        public static FragmentField of(String name, ResultFragment resultFragment) {
+            FragmentField fragmentField = new FragmentField();
+            fragmentField.name = name;
+            fragmentField.fieldList.addAll(resultFragment.fields);
+            return fragmentField;
+        }
+
         public String getName() {
             return name;
         }
