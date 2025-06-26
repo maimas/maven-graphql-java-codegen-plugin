@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.maimas.generated.GeneratedGraphqlAPI;
 import com.maimas.graphql.generator.UserConfig;
 import com.maimas.graphql.schema.processor.TemplateProcessor;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public class TemplateProcessorTest {
     /**
      * Fetch Remote service GrahpQL API JSON schema and generate code types, queries, mutations, etc.
      */
-    @Ignore
+    @Disabled
     @Test
     public void test_schema_generation() {
         UserConfig userConfig = new UserConfig();
@@ -34,7 +34,7 @@ public class TemplateProcessorTest {
         System.out.println(generatedClassContent);
 
         File generatedCodeFile = new File(userConfig.getDir());
-        Assert.assertTrue(generatedCodeFile.exists());
+        Assertions.assertTrue(generatedCodeFile.exists());
     }
 
 
@@ -68,8 +68,8 @@ public class TemplateProcessorTest {
                 "  }\r\n" +
                 "}";
 
-        Assert.assertEquals(expected, gqlQuery.toString());
-        Assert.assertEquals(new TypeReference<User>() {
+        Assertions.assertEquals(expected, gqlQuery.toString());
+        Assertions.assertEquals(new TypeReference<User>() {
         }.getType(), gqlQuery.getReturnType().getType());
     }
 
@@ -96,8 +96,8 @@ public class TemplateProcessorTest {
                 "  }\r\n" +
                 "}";
 
-        Assert.assertEquals(expected, gqlQuery.toString());
-        Assert.assertEquals(new TypeReference<User>() {
+        Assertions.assertEquals(expected, gqlQuery.toString());
+        Assertions.assertEquals(new TypeReference<User>() {
         }.getType(), gqlQuery.getReturnType().getType());
     }
 
@@ -122,8 +122,8 @@ public class TemplateProcessorTest {
                 "  }\r\n" +
                 "}";
 
-        Assert.assertEquals(expected, gqlQuery.toString());
-        Assert.assertEquals(new TypeReference<User>() {
+        Assertions.assertEquals(expected, gqlQuery.toString());
+        Assertions.assertEquals(new TypeReference<User>() {
         }.getType(), gqlQuery.getReturnType().getType());
     }
 
@@ -150,8 +150,8 @@ public class TemplateProcessorTest {
                 "  }\r\n" +
                 "}";
 
-        Assert.assertEquals(expected, gqlQuery.toString());
-        Assert.assertEquals(new TypeReference<User>() {
+        Assertions.assertEquals(expected, gqlQuery.toString());
+        Assertions.assertEquals(new TypeReference<User>() {
         }.getType(), gqlQuery.getReturnType().getType());
     }
 
@@ -174,8 +174,8 @@ public class TemplateProcessorTest {
                 "  }\r\n" +
                 "}";
 
-        Assert.assertEquals(expected, gqlQuery.toString());
-        Assert.assertEquals(new TypeReference<User>() {
+        Assertions.assertEquals(expected, gqlQuery.toString());
+        Assertions.assertEquals(new TypeReference<User>() {
         }.getType(), gqlQuery.getReturnType().getType());
     }
 
