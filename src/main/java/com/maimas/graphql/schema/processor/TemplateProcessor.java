@@ -38,16 +38,49 @@ public class TemplateProcessor {
     public String generate() {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(outStream);
-        Template template = getConfig().getTemplate(userCfg.getLanguage().getName() + "_GQL_schema_template.ftl");
 
-        template.process(getContext(), writer);
+        try {
+            String language = userCfg.getLanguage().getName();
+            TemplateConfig templateConfig = TemplateRegistry.getTemplateConfig(language);
+            String templatePath = (String) templateConfig.getProperty("templatePath");
+            Template template = getConfig().getTemplate(templatePath);
 
-        File file = new File(userCfg.getDir(), userCfg.getResultClassName() + userCfg.getLanguage().getExtension());
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        FileUtils.fileWrite(file, outStream.toString());
+            // Add template configuration to the context
+            HashMap<Object, Object> context = getContext();
+            context.put("templateConfig", templateConfig);
 
-        return outStream.toString();
+            // Process the template with the context
+            template.process(context, writer);
+            writer.flush();
+
+            String generatedCode = outStream.toString();
+
+            // Validate the generated code
+            if (!CodeValidator.validate(generatedCode)) {
+//                throw new RuntimeException("Generated code validation failed. See error log for details.");
+            }
+
+            // Write the generated content to a file
+            String fileExtension = (String) templateConfig.getProperty("fileExtension", userCfg.getLanguage().getExtension());
+            File file = new File(userCfg.getDir(), userCfg.getResultClassName() + fileExtension);
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            FileUtils.fileWrite(file, generatedCode);
+
+            return generatedCode;
+        } catch (Exception e) {
+            // Log the error
+            System.err.println("Error generating GraphQL API class: " + e.getMessage());
+            e.printStackTrace();
+            // Rethrow the exception
+            throw e;
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                // Ignore close errors
+            }
+        }
     }
 
     private HashMap<Object, Object> getContext() throws JsonProcessingException {

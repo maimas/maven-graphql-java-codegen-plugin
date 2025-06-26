@@ -81,6 +81,23 @@ public static class Types {
 </#list>
 <#--OBJECT fragment generation }-->
 
+<#--SCALAR fragment generation {-->
+<#list schema.types as type>
+    <#if type.name!="" && !type.name?starts_with("__") && typeKindEquals(type,"SCALAR") && type.name?upper_case?matches("BOOLEAN")>
+        /**
+         * Fragment for Boolean scalar type
+         */
+        public static class BooleanFragment {
+            private final ResultFragment resultFragment = new ResultFragment();
+
+            public ResultFragment getFragment() {
+                return resultFragment;
+            }
+        }
+    </#if>
+</#list>
+<#--SCALAR fragment generation }-->
+
 <#--INPUT_OBJECT generation {-->
 <#list schema.types as type>
     <#if type.name!="" && !type.name?starts_with("__") && typeKindEquals(type,"INPUT_OBJECT") && !type.name?upper_case?matches("QUERY|MUTATION")>
@@ -302,4 +319,3 @@ ${gqlBuildersContent}
     </#if>
     <#return false>
 </#function>
-
