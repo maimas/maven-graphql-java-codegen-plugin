@@ -53,7 +53,7 @@
     <#-- Handle LIST types -->
     <#if typeKind == "LIST" && type.ofType??>
         <#assign innerType = resolveType(type.ofType, typePrefix)>
-        <#return "List<" + innerType + ">">
+        <#return innerType>
     </#if>
 
     <#-- Handle named types -->
@@ -183,7 +183,7 @@
     <#if field.type.kind == "LIST" && field.type.ofType??>
         <#-- For List types, create a special fragment type -->
         <#local innerType = resolveType(field.type.ofType, typePrefix)>
-        <#return "List<" + innerType + ">Fragment">
+        <#return "List<" + innerType + "Fragment>">
     <#else>
         <#-- For non-List types, use the standard fragment type -->
         <#return getFieldType(field, typePrefix) + "Fragment">

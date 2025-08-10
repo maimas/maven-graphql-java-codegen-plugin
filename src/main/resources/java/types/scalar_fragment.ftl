@@ -1,16 +1,4 @@
 <#--SCALAR fragment generation {-->
-<#-- Always generate BooleanFragment regardless of schema -->
-/**
- * Fragment for Boolean scalar type
- */
-public static class BooleanFragment {
-    private final ResultFragment resultFragment = new ResultFragment();
-
-    public ResultFragment getFragment() {
-        return resultFragment;
-    }
-}
-
 <#-- Generate other scalar fragments based on schema -->
 <#list schema.types as type>
     <#if isScalarType(type, "String")>
@@ -23,6 +11,18 @@ public static class BooleanFragment {
             public ResultFragment getFragment() {
                 return resultFragment;
             }
+        }
+    </#if>
+    <#if isScalarType(type, "Boolean")>
+        /**
+        * Fragment for Boolean scalar type
+        */
+        public static class BooleanFragment {
+        private final ResultFragment resultFragment = new ResultFragment();
+
+        public ResultFragment getFragment() {
+        return resultFragment;
+        }
         }
     </#if>
     <#if isScalarType(type, "Int")>

@@ -11,8 +11,8 @@
         private final ResultFragment resultFragment = new ResultFragment();
 
         <#-- Add method to use a nested fragment -->
-        public List${type.name}Fragment withFragment(Consumer<${type.name}Fragment> fragmentBuilder) {
-            ${type.name}Fragment fragment = new ${type.name}Fragment();
+        public List<${type.name}Fragment> withFragment(Consumer<${type.name}Fragment> fragmentBuilder) {
+            List<${type.name}Fragment></Fragment> fragment = new List<${type.name}Fragment>();
             fragmentBuilder.accept(fragment);
             resultFragment.add(FragmentField.of("", fragment.getFragment()));
             return this;
