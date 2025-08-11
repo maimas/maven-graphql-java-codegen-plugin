@@ -10,7 +10,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
 
 
 ## 1. Code Generation Templates (FreeMarker)
-- [ ] Fix Java LIST type mapping (P0, S)
+- [x] Fix Java LIST type mapping (P0, S)
   - Problem: functions.ftl resolveType returns innerType for LIST, not List<innerType>, which likely breaks generics in generated code.
   - Task: Update resolveType to return "List<...>" for LIST when generating Java and align getFragmentType/createFragmentInstance accordingly.
   - AC: Generated Java uses List<T> consistently for list fields; compilation succeeds in sample project; unit snapshot tests updated.
@@ -62,7 +62,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - AC: Exceptions include actionable diagnostics.
 
 ## 4. UserConfig improvements
-- [ ] Fix enum typo (P0, S)
+- [x] Fix enum typo (P0, S)
   - Task: Selector.Typescript currently labeled "Typescrypt"; correct to "TypeScript"; consider backward compatibility.
   - AC: toString and getName return correct spelling; tests updated.
 
