@@ -35,11 +35,10 @@
     <#return resolveType(field.type, typePrefix)>
 </#function>
 
-<#-- Improved function to handle complex nested types -->
+<#-- Improved function to handle complex nested types with scalar mappings (overridable via templateConfig) -->
 <#function resolveType type typePrefix>
     <#assign typeName = "">
     <#assign typeKind = "">
-    <#assign resultType = "">
 
     <#if (type.kind??)>
         <#assign typeKind = type.kind>
@@ -53,12 +52,21 @@
     <#-- Handle LIST types -->
     <#if typeKind == "LIST" && type.ofType??>
         <#assign innerType = resolveType(type.ofType, typePrefix)>
-        <#return innerType>
+        <#return "List<" + innerType + ">">
     </#if>
 
     <#-- Handle named types -->
     <#if (type.name??)>
         <#assign typeName = type.name>
+        <#-- Prefer template-provided scalar mappings if available -->
+        <#assign scalarMappings = (templateConfig.properties.scalarMappings)!{}>
+        <#assign mapped = scalarMappings[typeName]?if_exists>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?lower_case]?if_exists></#if>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?upper_case]?if_exists></#if>
+        <#if mapped??>
+            <#return mapped>
+        </#if>
+        <#-- Fallback defaults -->
         <#if typeName?lower_case == "id">
             <#return "String">
         <#elseif typeName?lower_case == "int">
@@ -72,6 +80,13 @@
     <#-- Handle ofType as fallback -->
     <#if (type.ofType??) && (type.ofType.name??)>
         <#assign typeName = type.ofType.name>
+        <#assign scalarMappings = (templateConfig.properties.scalarMappings)!{}>
+        <#assign mapped = scalarMappings[typeName]?if_exists>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?lower_case]?if_exists></#if>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?upper_case]?if_exists></#if>
+        <#if mapped??>
+            <#return mapped>
+        </#if>
         <#if typeName?lower_case == "id">
             <#return "String">
         <#elseif typeName?lower_case == "int">
@@ -180,24 +195,22 @@
 
 <#-- Function to get the appropriate fragment type for a field -->
 <#function getFragmentType field typePrefix>
+    <#-- For List types, we still use the per-item fragment type -->
     <#if field.type.kind == "LIST" && field.type.ofType??>
-        <#-- For List types, create a special fragment type -->
         <#local innerType = resolveType(field.type.ofType, typePrefix)>
-        <#return "List<" + innerType + "Fragment>">
+        <#return innerType + "Fragment">
     <#else>
-        <#-- For non-List types, use the standard fragment type -->
         <#return getFieldType(field, typePrefix) + "Fragment">
     </#if>
 </#function>
 
 <#-- Function to create a new fragment instance for a field -->
 <#function createFragmentInstance field typePrefix>
+    <#-- For List types, create the inner fragment instance (per-item selection set) -->
     <#if field.type.kind == "LIST" && field.type.ofType??>
-        <#-- For List types, create a special fragment instance -->
         <#local innerType = resolveType(field.type.ofType, typePrefix)>
-        <#return "new ArrayList<>()">
+        <#return "new " + innerType + "Fragment()">
     <#else>
-        <#-- For non-List types, use the standard fragment instance -->
         <#return "new " + getFieldType(field, typePrefix) + "Fragment()">
     </#if>
 </#function>

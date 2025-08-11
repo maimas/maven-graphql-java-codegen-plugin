@@ -15,19 +15,19 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Update resolveType to return "List<...>" for LIST when generating Java and align getFragmentType/createFragmentInstance accordingly.
   - AC: Generated Java uses List<T> consistently for list fields; compilation succeeds in sample project; unit snapshot tests updated.
 
-- [ ] Nullability and Optional handling (P1, M)
+- [x] Nullability and Optional handling (P1, M)
   - Task: Map NON_NULL to non-Optional types and optional args to Optional<T> consistently; ensure buildArgumentMethods and buildMethodArguments align.
   - AC: For NON_NULL args, no Optional wrapper; for nullable args, Optional<T> is used; tests cover both cases.
 
-- [ ] Scalar mappings completeness (P1, S)
+- [x] Scalar mappings completeness (P1, S)
   - Task: Extend scalar mapping in resolveType to include Long, BigDecimal, OffsetDateTime, etc., and allow overrides via templateConfig.
   - AC: Configurable mapping works; default mapping documented.
 
-- [ ] Fragment generation for collections (P1, M)
+- [x] Fragment generation for collections (P1, M)
   - Task: Revisit getFragmentType/createFragmentInstance for LIST fields to avoid returning ArrayList where Fragment expected; design consistent fragment model.
   - AC: API remains ergonomic and types compile; examples updated.
 
-- [ ] Template header and imports hygiene (P2, S)
+- [x] Template header and imports hygiene (P2, S)
   - Task: Ensure unused imports are minimized; add necessary imports for collections when lists are used.
   - AC: Generated files have no unused import warnings in default templates.
 
@@ -66,7 +66,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Selector.Typescript currently labeled "Typescrypt"; correct to "TypeScript"; consider backward compatibility.
   - AC: toString and getName return correct spelling; tests updated.
 
-- [ ] Validation helpers (P1, S)
+- [x] Validation helpers (P1, S)
   - Task: Add validate() to check url non-empty, class/package identifiers valid, dir path normalized.
   - AC: Mojo fails early on invalid config with clear message.
 
@@ -74,11 +74,11 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Parse on first ':' only; trim; skip invalid; log warnings; support empty values.
   - AC: No IndexOutOfBounds on malformed header; tests added.
 
-- [ ] Immutability and null-safety (P2, S)
+- [x] Immutability and null-safety (P2, S)
   - Task: Copy arrays to lists or defensive copies; avoid exposing internal arrays.
   - AC: Public API safer; tests cover copies.
 
-- [ ] Extensibility for additional languages (P2, M)
+- [x] Extensibility for additional languages (P2, M)
   - Task: Allow template selection via TemplateRegistry; document how to add languages.
   - AC: New language can be plugged by adding config and resources.
 
@@ -88,28 +88,28 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - AC: Clear, structured logs; build fails on invalid config before generation.
 
 ## 7. Testing
-- [ ] Add unit tests for core components (P0, M)
+- [x] Add unit tests for core components (P0, M)
   - Task: Tests for SchemaFetcher (with mock server), TemplateProcessor (with sample schema), UserConfig (headers parsing), CodeValidator.
   - AC: CI green; coverage for critical paths; remove skipTests in surefire.
 
-- [ ] Snapshot/golden-file tests for templates (P1, M)
+- [x] Snapshot/golden-file tests for templates (P1, M)
   - Task: Given a fixed schema JSON, assert generated code matches expected outputs.
   - AC: Deterministic outputs with reviewable snapshots.
 
 ## 8. Build, Quality, and CI
-- [ ] Maven Enforcer and Java level (P1, S)
+- [x] Maven Enforcer and Java level (P1, S)
   - Task: Add maven-enforcer-plugin to enforce minimum Maven and Java; consider lowering source/target to 11 or 17 for wider compatibility.
   - AC: Clear failure if environment unsupported; documented in README.
 
-- [ ] Static analysis and formatting (P1, S)
+- [x] Static analysis and formatting (P1, S)
   - Task: Add Spotless (or fmt) and Checkstyle; configure basic rules; add to CI.
-  - AC: Consistent formatting; PRs fail on violations.
+  - AC: Consistent formatting; PRs fail on violations. (Implemented via -Pci profile running spotless:check and checkstyle:check)
 
-- [ ] Dependency updates (P2, S)
+- [x] Dependency updates (P2, S)
   - Task: Bump dependencies to latest stable where safe (jackson, freemarker, maven plugin tools); consider Dependabot.
   - AC: Build remains green; no security alerts.
 
 ## 9. Documentation and DX
-- [ ] README improvements (P1, S)
+- [x] README improvements (P1, S)
   - Task: Add configuration examples (servers list, headers), minimal/advanced usage, troubleshooting, and template customization guide.
   - AC: New users can run within minutes; examples verified.

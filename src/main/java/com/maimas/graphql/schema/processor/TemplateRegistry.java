@@ -17,6 +17,21 @@ public class TemplateRegistry {
         TemplateConfig javaConfig = new TemplateConfig("Java", "1.0")
                 .setProperty("fileExtension", ".java")
                 .setProperty("templatePath", "java/Java_GQL_schema_template.ftl");
+        // Default scalar mappings for Java; can be overridden at runtime by replacing this property
+        java.util.Map<String, String> defaultScalarMappings = new java.util.HashMap<>();
+        defaultScalarMappings.put("ID", "String");
+        defaultScalarMappings.put("Int", "Integer");
+        defaultScalarMappings.put("String", "String");
+        defaultScalarMappings.put("Boolean", "Boolean");
+        defaultScalarMappings.put("Float", "Float");
+        defaultScalarMappings.put("Date", "java.util.Date");
+        // Extended/common scalars
+        defaultScalarMappings.put("Long", "Long");
+        defaultScalarMappings.put("BigDecimal", "java.math.BigDecimal");
+        defaultScalarMappings.put("OffsetDateTime", "java.time.OffsetDateTime");
+        defaultScalarMappings.put("LocalDateTime", "java.time.LocalDateTime");
+        defaultScalarMappings.put("Instant", "java.time.Instant");
+        javaConfig.setProperty("scalarMappings", defaultScalarMappings);
         registerTemplate(javaConfig);
 
         // Additional languages can be registered here

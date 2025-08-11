@@ -1,13 +1,56 @@
 package ${package};
 
+<#-- Helper to detect if a GraphQL type (possibly nested NON_NULL) is a LIST -->
+<#function isListType t>
+    <#if (t.kind??)>
+        <#if t.kind == "LIST">
+            <#return true>
+        <#elseif t.kind == "NON_NULL" && t.ofType??>
+            <#return isListType(t.ofType)>
+        </#if>
+    </#if>
+    <#return false>
+</#function>
+
+<#-- Compute whether we need List and Consumer imports -->
+<#assign hasList=false>
+<#assign usesConsumer=false>
+<#list schema.types as t>
+    <#-- Check object fields for list usage -->
+    <#if isUserObjectType(t)>
+        <#list t.fields as f>
+            <#if isListType(f.type)>
+                <#assign hasList=true>
+            </#if>
+        </#list>
+    </#if>
+    <#-- Check input object fields for list usage -->
+    <#if t.name!="" && !t.name?starts_with("__") && typeKindEquals(t,"INPUT_OBJECT") && !t.name?upper_case?matches("QUERY|MUTATION")>
+        <#list t.inputFields as f>
+            <#if isListType(f.type)>
+                <#assign hasList=true>
+            </#if>
+        </#list>
+    </#if>
+    <#-- Check if we generate Query/Mutation methods that use Consumer -->
+    <#if typeKindEquals(t,"OBJECT") && (typeNameEquals(t,"QUERY") || typeNameEquals(t,"MUTATION")) && (t.fields??) && (t.fields?size > 0)>
+        <#assign usesConsumer=true>
+    </#if>
+</#list>
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.Optional;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.HashMap;
+<#if hasList>import java.util.List;
+</#if><#if usesConsumer>import java.util.function.Consumer;
+</#if>
 
 
 /**
@@ -126,13 +169,13 @@ public static class Types {
             * @return - graphql query string.
             */
             public GQLQuery ${field.name}(Consumer< ${getAsFirstCapitalized(field.name)}Args> input,
-                                          Consumer< ${getFieldType(field, "Types.")}Fragment> output){
+                                          Consumer< ${getFragmentType(field, "Types.")} > output){
 
             final ${getAsFirstCapitalized(field.name)}Args args = new ${getAsFirstCapitalized(field.name)}Args();
             input.accept(args);
             final Arguments arguments = args.getArguments();
 
-            final ${getFieldType(field, "Types.")}Fragment fragment = new ${getFieldType(field, "Types.")}Fragment();
+            final ${getFragmentType(field, "Types.")} fragment = ${createFragmentInstance(field, "Types.")};
             output.accept(fragment);
             final ResultFragment resultFragment = fragment.getFragment();
 
@@ -205,34 +248,74 @@ ${gqlBuildersContent}
     <#return result>
 </#function>
 
-<#function getFieldType field typePrefix>
+<#-- Improved function to handle complex nested types with scalar mappings (overridable via templateConfig) -->
+<#function resolveType type typePrefix>
     <#assign typeName = "">
     <#assign typeKind = "">
-    <#assign resultType = "">
 
-    <#if (field.type.name??)>
-        <#assign typeName = field.type.name>
-    <#elseif (field.type.ofType.name??)>
-        <#if (field.type.kind??)>
-            <#assign typeKind = field.type.kind>
+    <#if (type.kind??)>
+        <#assign typeKind = type.kind>
+    </#if>
+
+    <#-- Handle NON_NULL types -->
+    <#if typeKind == "NON_NULL" && type.ofType??>
+        <#return resolveType(type.ofType, typePrefix)>
+    </#if>
+
+    <#-- Handle LIST types -->
+    <#if typeKind == "LIST" && type.ofType??>
+        <#assign innerType = resolveType(type.ofType, typePrefix)>
+        <#return "List<" + innerType + ">">
+    </#if>
+
+    <#-- Handle named types -->
+    <#if (type.name??)>
+        <#assign typeName = type.name>
+        <#-- Prefer template-provided scalar mappings if available -->
+        <#assign scalarMappings = (templateConfig.properties.scalarMappings)!{}>
+        <#assign mapped = scalarMappings[typeName]?if_exists>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?lower_case]?if_exists></#if>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?upper_case]?if_exists></#if>
+        <#if mapped??>
+            <#return mapped>
         </#if>
-        <#assign typeName = field.type.ofType.name>
-    </#if>
-
-    <#if typeName?lower_case?matches("boolean|string|date|float|int|id")>
-        <#return typeName>
-    </#if>
-
-    <#if typeKind!="">
-        <#if typeKind?lower_case == "list">
-            <#assign typeKind = "List">
-            <#assign resultType = typeKind + "<" + typePrefix + typeName + ">">
-            <#return resultType>
+        <#-- Fallback defaults -->
+        <#if typeName?lower_case == "id">
+            <#return "String">
+        <#elseif typeName?lower_case == "int">
+            <#return "Integer">
+        <#elseif typeName?lower_case?matches("boolean|string|date|float")>
+            <#return typeName>
         </#if>
+        <#return typePrefix + typeName>
     </#if>
 
-    <#assign resultType = typePrefix + typeName>
-    <#return resultType>
+    <#-- Handle ofType as fallback -->
+    <#if (type.ofType??) && (type.ofType.name??)>
+        <#assign typeName = type.ofType.name>
+        <#assign scalarMappings = (templateConfig.properties.scalarMappings)!{}>
+        <#assign mapped = scalarMappings[typeName]?if_exists>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?lower_case]?if_exists></#if>
+        <#if !(mapped??)><#assign mapped = scalarMappings[typeName?upper_case]?if_exists></#if>
+        <#if mapped??>
+            <#return mapped>
+        </#if>
+        <#if typeName?lower_case == "id">
+            <#return "String">
+        <#elseif typeName?lower_case == "int">
+            <#return "Integer">
+        <#elseif typeName?lower_case?matches("boolean|string|date|float")>
+            <#return typeName>
+        </#if>
+        <#return typePrefix + typeName>
+    </#if>
+
+    <#-- Default fallback -->
+    <#return "Object">
+</#function>
+
+<#function getFieldType field typePrefix>
+    <#return resolveType(field.type, typePrefix)>
 </#function>
 
 <#function typeKindEquals type value>
@@ -318,4 +401,26 @@ ${gqlBuildersContent}
         <#return true>
     </#if>
     <#return false>
+</#function>
+
+<#-- Function to get the appropriate fragment type for a field -->
+<#function getFragmentType field typePrefix>
+    <#-- For List types, we still use the per-item fragment type -->
+    <#if field.type.kind == "LIST" && field.type.ofType??>
+        <#local innerType = resolveType(field.type.ofType, typePrefix)>
+        <#return innerType + "Fragment">
+    <#else>
+        <#return getFieldType(field, typePrefix) + "Fragment">
+    </#if>
+</#function>
+
+<#-- Function to create a new fragment instance for a field -->
+<#function createFragmentInstance field typePrefix>
+    <#-- For List types, create the inner fragment instance (per-item selection set) -->
+    <#if field.type.kind == "LIST" && field.type.ofType??>
+        <#local innerType = resolveType(field.type.ofType, typePrefix)>
+        <#return "new " + innerType + "Fragment()">
+    <#else>
+        <#return "new " + getFieldType(field, typePrefix) + "Fragment()">
+    </#if>
 </#function>

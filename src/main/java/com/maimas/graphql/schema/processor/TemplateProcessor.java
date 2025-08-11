@@ -8,7 +8,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import lombok.SneakyThrows;
-import org.codehaus.plexus.util.FileUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -36,10 +35,9 @@ public class TemplateProcessor {
      */
     @SneakyThrows
     public String generate() {
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        Writer writer = new OutputStreamWriter(outStream);
+        try (ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+             OutputStreamWriter writer = new OutputStreamWriter(outStream, StandardCharsets.UTF_8)) {
 
-        try {
             String language = userCfg.getLanguage().getName();
             TemplateConfig templateConfig = TemplateRegistry.getTemplateConfig(language);
             String templatePath = (String) templateConfig.getProperty("templatePath");
@@ -53,38 +51,34 @@ public class TemplateProcessor {
             template.process(context, writer);
             writer.flush();
 
-            String generatedCode = outStream.toString();
+            String generatedCode = outStream.toString(StandardCharsets.UTF_8);
 
             // Validate the generated code
             if (!CodeValidator.validate(generatedCode)) {
-//                throw new RuntimeException("Generated code validation failed. See error log for details.");
+                if (userCfg.isFailOnValidationError()) {
+                    throw new RuntimeException("Generated code validation failed. See error log for details.");
+                }
+                java.util.logging.Logger.getLogger(TemplateProcessor.class.getName())
+                        .warning("Generated code failed validation; continuing due to configuration failOnValidationError=false.");
             }
 
             // Write the generated content to a file
             String fileExtension = (String) templateConfig.getProperty("fileExtension", userCfg.getLanguage().getExtension());
-            File file = new File(userCfg.getDir(), userCfg.getResultClassName() + fileExtension);
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-            FileUtils.fileWrite(file, generatedCode);
+            java.nio.file.Path targetDir = java.nio.file.Paths.get(userCfg.getDir());
+            java.nio.file.Files.createDirectories(targetDir);
+            java.nio.file.Path filePath = targetDir.resolve(userCfg.getResultClassName() + fileExtension);
+            java.nio.file.Files.write(filePath, generatedCode.getBytes(StandardCharsets.UTF_8));
 
             return generatedCode;
         } catch (Exception e) {
-            // Log the error
-            System.err.println("Error generating GraphQL API class: " + e.getMessage());
-            e.printStackTrace();
-            // Rethrow the exception
+            java.util.logging.Logger.getLogger(TemplateProcessor.class.getName())
+                    .log(java.util.logging.Level.SEVERE, "Error generating GraphQL API class", e);
             throw e;
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                // Ignore close errors
-            }
         }
     }
 
     private HashMap<Object, Object> getContext() throws JsonProcessingException {
-        String remoteGQLSchema = SchemaFetcher.download(userCfg.getUrl(), userCfg.getHttpHeaders());
+        String remoteGQLSchema = SchemaFetcher.download(userCfg.getUrl(), userCfg.getHttpHeaders(), userCfg);
         SchemaModel schemaModel = new ObjectMapper().readValue(remoteGQLSchema, SchemaModel.class);
 
         HashMap<Object, Object> context = new HashMap<>();
@@ -110,10 +104,12 @@ public class TemplateProcessor {
     private String getGQLBuildersContent() {
         String resource = userCfg.getLanguage().getName() + "_GraphQL_Builders.txt";
         InputStream stream = TemplateProcessor.class.getClassLoader().getResourceAsStream(resource);
-
-        return new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining("\n"));
+        if (stream == null) {
+            throw new IllegalStateException("Template resource not found: " + resource);
+        }
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            return br.lines().collect(Collectors.joining("\n"));
+        }
     }
 
 }
