@@ -32,11 +32,11 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - AC: Generated files have no unused import warnings in default templates.
 
 ## 2. TemplateProcessor and Pipeline
-- [ ] Enforce/Improve validation (P1, S)
+- [x] Enforce/Improve validation (P1, S)
   - Task: Re-enable validation failure throw in TemplateProcessor when CodeValidator fails; make it configurable via UserConfig (failOnValidationError boolean).
   - AC: By default, invalid code fails the build; flag can disable for migration.
 
-- [ ] Resource handling and IO (P1, S)
+- [x] Resource handling and IO (P1, S)
   - Task: Use try-with-resources for ByteArrayOutputStream/Writer; ensure UTF-8 explicitly; avoid FileUtils if not needed; handle mkdirs result.
   - AC: No resource leaks; error paths covered.
 
@@ -44,16 +44,16 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Replace System.err/printStackTrace with Maven logger (getLog()) where available or slf4j for non-Mojo classes; propagate meaningful exceptions.
   - AC: Uniform logging strategy; no direct System.out/err.
 
-- [ ] Builders content loading (P2, S)
+- [x] Builders content loading (P2, S)
   - Task: Validate resource presence for <Language>_GraphQL_Builders.txt; add clear error if missing.
   - AC: Meaningful error when resource not found.
 
 ## 3. SchemaFetcher robustness
-- [ ] Timeouts and retries (P0, M)
+- [x] Timeouts and retries (P0, M)
   - Task: Configure request/connect timeouts; add limited retry with backoff for transient 5xx/IO errors.
   - AC: Network hiccups handled; configurable via UserConfig.
 
-- [ ] Proper resource closing (P0, S)
+- [x] Proper resource closing (P0, S)
   - Task: Use try-with-resources for CloseableHttpClient/Response; ensure InputStream body is repeatable or buffered.
   - AC: No resource leaks; static analysis clean.
 
