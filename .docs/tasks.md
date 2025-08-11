@@ -83,7 +83,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - AC: New language can be plugged by adding config and resources.
 
 ## 5. Mojo (GQLCodeGeneratorMojo)
-- [ ] Configuration validation and helpful logs (P1, S)
+- [x] Configuration validation and helpful logs (P1, S)
   - Task: Validate servers list non-empty; log each server index; catch and wrap exceptions with context.
   - AC: Clear, structured logs; build fails on invalid config before generation.
 
