@@ -40,7 +40,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Use try-with-resources for ByteArrayOutputStream/Writer; ensure UTF-8 explicitly; avoid FileUtils if not needed; handle mkdirs result.
   - AC: No resource leaks; error paths covered.
 
-- [ ] Logging (P1, S)
+- [x] Logging (P1, S)
   - Task: Replace System.err/printStackTrace with Maven logger (getLog()) where available or slf4j for non-Mojo classes; propagate meaningful exceptions.
   - AC: Uniform logging strategy; no direct System.out/err.
 
@@ -57,7 +57,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Use try-with-resources for CloseableHttpClient/Response; ensure InputStream body is repeatable or buffered.
   - AC: No resource leaks; static analysis clean.
 
-- [ ] Error reporting (P1, S)
+- [x] Error reporting (P1, S)
   - Task: Include status code and body snippet; parse GraphQL errors if present; attach headers info redacted.
   - AC: Exceptions include actionable diagnostics.
 
@@ -70,7 +70,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Task: Add validate() to check url non-empty, class/package identifiers valid, dir path normalized.
   - AC: Mojo fails early on invalid config with clear message.
 
-- [ ] Headers parsing robustness (P1, S)
+- [x] Headers parsing robustness (P1, S)
   - Task: Parse on first ':' only; trim; skip invalid; log warnings; support empty values.
   - AC: No IndexOutOfBounds on malformed header; tests added.
 
