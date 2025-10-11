@@ -37,21 +37,13 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Document all available template properties and their meanings
   - Include a complete example of creating a custom template for a new language
 
-### [ ] Update network configuration documentation
+### [x] Update network configuration documentation
 - **Priority**: P2
 - **Effort**: S
 - **AC**:
   - Clarify the retry behavior for network errors
   - Document all network configuration options in detail
   - Add examples of common network configuration scenarios
-
-### [ ] Add examples for TypeScript generation
-- **Priority**: P2
-- **Effort**: M
-- **AC**:
-  - Add examples of using the plugin with TypeScript
-  - Include sample TypeScript output
-  - Document TypeScript-specific configuration options
 
 ### [x] Update Java version requirements
 - **Priority**: P1
@@ -88,15 +80,6 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Add more detailed logging throughout the code generation process
   - Implement better handling of GraphQL schema errors
   - Add option to output validation errors to a file
-
-### [ ] Add support for additional languages
-- **Priority**: P2
-- **Effort**: L
-- **AC**:
-  - Implement Kotlin template support
-  - Add Scala template support
-  - Create a mechanism for community-contributed language templates
-  - Document the process for adding new language support
 
 ### [ ] Improve code validation
 - **Priority**: P2

@@ -148,6 +148,53 @@ Headers format notes:
 - Each header is a single string in the form "Name:Value". The first ':' splits the name and value; additional ':' are allowed in the value.
 - Leading/trailing spaces are trimmed. Empty values are supported. Malformed entries (missing ':', empty name) are skipped with a warning.
 
+## Network configuration
+
+The plugin fetches the GraphQL schema over HTTP and provides configurable timeouts and retry behavior.
+
+Retry behavior:
+- The plugin retries on transient server errors (HTTP 5xx) and IOExceptions (connection errors, timeouts).
+- By default it will retry up to 2 times with an exponential linear backoff based on retryBackoffMs (attempt 1 waits backoff, attempt 2 waits 2x backoff, etc.).
+- Responses with status 200 that contain a GraphQL "errors" array are treated as failures and will not be retried.
+
+Options:
+- connectTimeoutMs: Milliseconds to establish the TCP connection. Default 5000.
+- socketTimeoutMs: Milliseconds to wait for data after the connection is established. Default 5000.
+- maxRetries: Maximum number of retry attempts for 5xx/IO exceptions. Default 2. Set to 0 to disable retries.
+- retryBackoffMs: Base delay in milliseconds between retries. Default 500. Each subsequent retry multiplies the delay by the attempt number.
+
+Examples:
+1) Slower network with longer timeouts and more retries
+````
+<server>
+  <url>https://api.example.com/graphql</url>
+  <connectTimeoutMs>15000</connectTimeoutMs>
+  <socketTimeoutMs>30000</socketTimeoutMs>
+  <maxRetries>5</maxRetries>
+  <retryBackoffMs>1000</retryBackoffMs>
+</server>
+````
+
+2) Disable retries (fail fast)
+````
+<server>
+  <url>https://api.example.com/graphql</url>
+  <maxRetries>0</maxRetries>
+</server>
+````
+
+3) Authenticated request with header and custom timeouts
+````
+<server>
+  <url>https://secure.example.com/graphql</url>
+  <headers>
+    <header>Authorization:Bearer ${env.TOKEN}</header>
+  </headers>
+  <connectTimeoutMs>8000</connectTimeoutMs>
+  <socketTimeoutMs>8000</socketTimeoutMs>
+</server>
+````
+
 Environment requirements:
 - Java 17+ and Maven 3.6.3+ are required. The build enforces this via maven-enforcer-plugin.
 
