@@ -34,27 +34,74 @@ public class CodeValidator {
      * @return true if the code is valid, false otherwise
      */
     public static boolean validate(String code, String errorOutputFile) {
+        // Backward-compatible path: no ignores, default language "Java"
+        return validate(code, errorOutputFile, null, "Java");
+    }
+
+    /**
+     * Validates the generated code with additional options.
+     *
+     * @param code the generated code to validate
+     * @param errorOutputFile optional path to write validation errors to
+     * @param ignoredRuleIds optional list of rule IDs to ignore
+     * @param languageName optional language name to apply language-specific rules (currently informational)
+     * @return true if the code is valid, false otherwise
+     */
+    public static boolean validate(String code, String errorOutputFile, String[] ignoredRuleIds, String languageName) {
         List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
 
-        // Check for basic syntax errors
+        java.util.function.Predicate<String> isIgnored = id -> {
+            if (ignoredRuleIds == null || ignoredRuleIds.length == 0) return false;
+            for (String s : ignoredRuleIds) {
+                if (s != null && s.trim().equalsIgnoreCase(id)) return true;
+            }
+            return false;
+        };
+
+        // BASIC_SYNTAX (ERROR)
         if (!validateBasicSyntax(code, errors)) {
-            logErrors(errors, errorOutputFile);
-            return false;
+            if (isIgnored.test("BASIC_SYNTAX")) {
+                warnings.add("[BASIC_SYNTAX] validation failed but was ignored by configuration");
+            } else {
+                logErrors(errors, errorOutputFile);
+                return false;
+            }
         }
 
-        // Check for unbalanced braces
+        // BRACES_BALANCED (ERROR)
+        errors.clear();
         if (!validateBraces(code, errors)) {
-            logErrors(errors, errorOutputFile);
-            return false;
+            if (isIgnored.test("BRACES_BALANCED")) {
+                warnings.add("[BRACES_BALANCED] validation failed but was ignored by configuration");
+            } else {
+                logErrors(errors, errorOutputFile);
+                return false;
+            }
         }
 
-        // Check for missing semicolons
+        // SEMICOLON_TERMINATION (ERROR)
+        errors.clear();
         if (!validateSemicolons(code, errors)) {
-            logErrors(errors, errorOutputFile);
-            return false;
+            if (isIgnored.test("SEMICOLON_TERMINATION")) {
+                warnings.add("[SEMICOLON_TERMINATION] validation failed but was ignored by configuration");
+            } else {
+                logErrors(errors, errorOutputFile);
+                return false;
+            }
         }
 
-        // All validations passed
+        // PARENTHESES_BALANCED (WARNING): does not fail, only warns
+        String parenWarning = validateParenthesesWarning(code);
+        if (parenWarning != null && !isIgnored.test("PARENTHESES_BALANCED")) {
+            warnings.add("[PARENTHESES_BALANCED] " + parenWarning);
+        }
+
+        // Emit warnings to log (do not fail)
+        for (String w : warnings) {
+            LOGGER.warning(w);
+        }
+
         return true;
     }
 
@@ -120,10 +167,26 @@ public class CodeValidator {
     private static boolean validateSemicolons(String code, List<String> errors) {
         String[] lines = code.split("\r?\n");
         int depth = 0;
+        boolean inBlockComment = false;
 
         for (int i = 0; i < lines.length; i++) {
             String raw = lines[i];
             String line = raw.trim();
+
+            // Handle block comments start/end
+            if (inBlockComment) {
+                if (line.contains("*/")) {
+                    inBlockComment = false;
+                }
+                continue; // ignore any content inside block comments
+            }
+            if (line.startsWith("/*") || line.startsWith("/**")) {
+                inBlockComment = !line.contains("*/");
+                continue;
+            }
+            if (line.startsWith("* ") || line.equals("*")) { // javadoc middle lines
+                continue;
+            }
 
             int depthBefore = depth;
             // Update depth for next line based on braces appearing in this line
@@ -143,8 +206,10 @@ public class CodeValidator {
                 if (closeIdx > openIdx) {
                     String inner = raw.substring(openIdx + 1, closeIdx).trim();
                     if (!inner.isEmpty()) {
-                        // Remove line comments inside the same line
-                        inner = inner.replaceAll("//.*$", "").trim();
+                        // Remove inline // comments and block /* */ comments present on same line
+                        inner = inner.replaceAll("//.*$", "");
+                        inner = inner.replaceAll("/\\*.*?\\*/", "");
+                        inner = inner.trim();
                         if (!inner.isEmpty()) {
                             boolean innerLooksLikeStmt = inner.contains("=") || inner.matches(".*\\b(boolean|byte|short|int|long|float|double|char|String|var)\\b.*");
                             boolean innerHasSemicolon = inner.endsWith(";") || inner.contains(";");
@@ -170,6 +235,9 @@ public class CodeValidator {
                     if (tail.endsWith("}")) {
                         tail = tail.substring(0, tail.length() - 1).trim();
                     }
+                    // Remove possible inline comments in tail
+                    tail = tail.replaceAll("//.*$", "");
+                    tail = tail.replaceAll("/\\*.*?\\*/", "").trim();
                     if (!tail.isEmpty() && !tail.endsWith(";") && (tail.contains("=") || tail.matches(".*\\b(boolean|byte|short|int|long|float|double|char|String|var)\\b.*"))) {
                         errors.add("Missing semicolon at line " + (i + 1) + ": " + tail);
                         return false;
@@ -181,7 +249,9 @@ public class CodeValidator {
             // Inside a type body, a simple statement like assignment or field declaration should end with semicolon
             if (depthBefore > 0) {
                 boolean looksLikeStatement = line.contains("=") || line.matches(".*\\b(boolean|byte|short|int|long|float|double|char|String|var)\\b.*");
-                if (looksLikeStatement) {
+                // Allow continuation lines for multi-line assignments/concatenations
+                boolean continuation = line.endsWith("+") || line.endsWith("=") || line.endsWith("&&") || line.endsWith("||") || line.endsWith(":") || line.endsWith("?");
+                if (looksLikeStatement && !continuation) {
                     errors.add("Missing semicolon at line " + (i + 1) + ": " + line);
                     return false;
                 }
@@ -189,6 +259,21 @@ public class CodeValidator {
         }
 
         return true;
+    }
+
+    /**
+     * Checks for balanced parentheses and returns a warning message if unbalanced; null otherwise.
+     */
+    private static String validateParenthesesWarning(String code) {
+        int open = 0, close = 0;
+        for (char c : code.toCharArray()) {
+            if (c == '(') open++;
+            else if (c == ')') close++;
+        }
+        if (open != close) {
+            return "Unbalanced parentheses: " + open + " opening, " + close + " closing";
+        }
+        return null;
     }
 
     /**

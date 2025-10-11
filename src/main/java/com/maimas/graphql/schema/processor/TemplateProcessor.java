@@ -70,7 +70,7 @@ public class TemplateProcessor {
             LOGGER.info("Validating generated code...");
 
             // Validate the generated code
-            if (!CodeValidator.validate(generatedCode, userCfg.getValidationErrorOutputFile())) {
+            if (!CodeValidator.validate(generatedCode, userCfg.getValidationErrorOutputFile(), userCfg.getIgnoredValidationRules(), userCfg.getLanguage().getName())) {
                 if (userCfg.isFailOnValidationError()) {
                     String errorMsg = "Generated code validation failed. ";
                     if (userCfg.getValidationErrorOutputFile() != null) {

@@ -52,7 +52,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Clearly state Java 17 requirement in the README prerequisites section
   - Update any outdated Java version references throughout the document
 
-### [ ] Improve README structure and organization
+### [x] Improve README structure and organization
 - **Priority**: P2
 - **Effort**: M
 - **AC**:
@@ -61,7 +61,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Add section headers and improve formatting for better readability
   - Ensure consistent formatting throughout the document
 
-### [ ] Add examples of common use cases
+### [x] Add examples of common use cases
 - **Priority**: P2
 - **Effort**: M
 - **AC**:
@@ -81,7 +81,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Implement better handling of GraphQL schema errors
   - Add option to output validation errors to a file
 
-### [ ] Improve code validation
+### [x] Improve code validation
 - **Priority**: P2
 - **Effort**: M
 - **AC**:
@@ -90,7 +90,7 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
   - Implement warning levels (error, warning, info) for validation issues
   - Add option to ignore specific validation rules
 
-### [ ] Add integration tests
+### [x] Add integration tests
 - **Priority**: P1
 - **Effort**: L
 - **AC**:

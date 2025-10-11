@@ -54,6 +54,12 @@ public class UserConfig {
      */
     private String validationErrorOutputFile;
 
+    /**
+     * Optional list of validation rule IDs to ignore.
+     * Supported IDs: BASIC_SYNTAX, BRACES_BALANCED, SEMICOLON_TERMINATION, PARENTHESES_BALANCED
+     */
+    private String[] ignoredValidationRules;
+
     // --- Network and retry configuration ---
     /** Connect timeout in milliseconds (default 5000). */
     private Integer connectTimeoutMs = 5000;
@@ -122,6 +128,14 @@ public class UserConfig {
 
     public void setValidationErrorOutputFile(String validationErrorOutputFile) {
         this.validationErrorOutputFile = validationErrorOutputFile;
+    }
+
+    public String[] getIgnoredValidationRules() {
+        return ignoredValidationRules == null ? null : ignoredValidationRules.clone();
+    }
+
+    public void setIgnoredValidationRules(String[] ignoredValidationRules) {
+        this.ignoredValidationRules = ignoredValidationRules == null ? null : ignoredValidationRules.clone();
     }
 
     public Integer getConnectTimeoutMs() {
