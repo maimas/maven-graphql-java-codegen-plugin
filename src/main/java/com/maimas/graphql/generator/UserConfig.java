@@ -48,6 +48,12 @@ public class UserConfig {
     // Validation behavior: by default, fail build if generated code is invalid
     private boolean failOnValidationError = true;
 
+    /**
+     * Optional file path to write validation errors to.
+     * If provided, validation errors will be written to this file.
+     */
+    private String validationErrorOutputFile;
+
     // --- Network and retry configuration ---
     /** Connect timeout in milliseconds (default 5000). */
     private Integer connectTimeoutMs = 5000;
@@ -108,6 +114,14 @@ public class UserConfig {
 
     public void setFailOnValidationError(boolean failOnValidationError) {
         this.failOnValidationError = failOnValidationError;
+    }
+
+    public String getValidationErrorOutputFile() {
+        return validationErrorOutputFile;
+    }
+
+    public void setValidationErrorOutputFile(String validationErrorOutputFile) {
+        this.validationErrorOutputFile = validationErrorOutputFile;
     }
 
     public Integer getConnectTimeoutMs() {
@@ -192,6 +206,15 @@ public class UserConfig {
         }
         if (retryBackoffMs != null && retryBackoffMs < 0) {
             throw new IllegalArgumentException("Configuration error: 'retryBackoffMs' must be >= 0");
+        }
+
+        // Validate validationErrorOutputFile if provided
+        if (validationErrorOutputFile != null && !validationErrorOutputFile.trim().isEmpty()) {
+            File errorFile = new File(validationErrorOutputFile);
+            File parentDir = errorFile.getParentFile();
+            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
+                throw new IllegalArgumentException("Configuration error: Cannot create directory for 'validationErrorOutputFile': " + parentDir);
+            }
         }
     }
 

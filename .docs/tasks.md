@@ -8,108 +8,109 @@ The tasks are grouped by category and include suggested priority (P0 critical, P
 1. Tasks have to be implemented iteratively based on the list below
 2. After completing each task, it needs to be marked as done by changing the checkbox from [ ] to [x]
 
+# Documentation Tasks
 
-## 1. Code Generation Templates (FreeMarker)
-- [x] Fix Java LIST type mapping (P0, S)
-  - Problem: functions.ftl resolveType returns innerType for LIST, not List<innerType>, which likely breaks generics in generated code.
-  - Task: Update resolveType to return "List<...>" for LIST when generating Java and align getFragmentType/createFragmentInstance accordingly.
-  - AC: Generated Java uses List<T> consistently for list fields; compilation succeeds in sample project; unit snapshot tests updated.
+## README Updates
 
-- [x] Nullability and Optional handling (P1, M)
-  - Task: Map NON_NULL to non-Optional types and optional args to Optional<T> consistently; ensure buildArgumentMethods and buildMethodArguments align.
-  - AC: For NON_NULL args, no Optional wrapper; for nullable args, Optional<T> is used; tests cover both cases.
+### [x] Fix artifact ID in README
+- **Priority**: P0
+- **Effort**: S
+- **AC**: 
+  - Update the artifact ID in the README from "graphql-codegen" to "graphql-codegen-maven-plugin"
+  - Ensure all code examples in the README use the correct artifact ID
 
-- [x] Scalar mappings completeness (P1, S)
-  - Task: Extend scalar mapping in resolveType to include Long, BigDecimal, OffsetDateTime, etc., and allow overrides via templateConfig.
-  - AC: Configurable mapping works; default mapping documented.
+### [x] Enhance code validation documentation
+- **Priority**: P1
+- **Effort**: M
+- **AC**:
+  - Add a dedicated section about the CodeValidator in the README
+  - Document the types of validation performed (basic syntax, balanced braces, semicolons)
+  - Explain how validation errors are reported and how to troubleshoot them
+  - Update the troubleshooting section with common validation errors and solutions
 
-- [x] Fragment generation for collections (P1, M)
-  - Task: Revisit getFragmentType/createFragmentInstance for LIST fields to avoid returning ArrayList where Fragment expected; design consistent fragment model.
-  - AC: API remains ergonomic and types compile; examples updated.
+### [x] Improve template customization documentation
+- **Priority**: P1
+- **Effort**: M
+- **AC**:
+  - Expand the "Extending to additional languages" section with more details about TemplateRegistry
+  - Add examples of how to register custom templates programmatically
+  - Document all available template properties and their meanings
+  - Include a complete example of creating a custom template for a new language
 
-- [x] Template header and imports hygiene (P2, S)
-  - Task: Ensure unused imports are minimized; add necessary imports for collections when lists are used.
-  - AC: Generated files have no unused import warnings in default templates.
+### [ ] Update network configuration documentation
+- **Priority**: P2
+- **Effort**: S
+- **AC**:
+  - Clarify the retry behavior for network errors
+  - Document all network configuration options in detail
+  - Add examples of common network configuration scenarios
 
-## 2. TemplateProcessor and Pipeline
-- [x] Enforce/Improve validation (P1, S)
-  - Task: Re-enable validation failure throw in TemplateProcessor when CodeValidator fails; make it configurable via UserConfig (failOnValidationError boolean).
-  - AC: By default, invalid code fails the build; flag can disable for migration.
+### [ ] Add examples for TypeScript generation
+- **Priority**: P2
+- **Effort**: M
+- **AC**:
+  - Add examples of using the plugin with TypeScript
+  - Include sample TypeScript output
+  - Document TypeScript-specific configuration options
 
-- [x] Resource handling and IO (P1, S)
-  - Task: Use try-with-resources for ByteArrayOutputStream/Writer; ensure UTF-8 explicitly; avoid FileUtils if not needed; handle mkdirs result.
-  - AC: No resource leaks; error paths covered.
+### [x] Update Java version requirements
+- **Priority**: P1
+- **Effort**: S
+- **AC**:
+  - Clearly state Java 17 requirement in the README prerequisites section
+  - Update any outdated Java version references throughout the document
 
-- [x] Logging (P1, S)
-  - Task: Replace System.err/printStackTrace with Maven logger (getLog()) where available or slf4j for non-Mojo classes; propagate meaningful exceptions.
-  - AC: Uniform logging strategy; no direct System.out/err.
+### [ ] Improve README structure and organization
+- **Priority**: P2
+- **Effort**: M
+- **AC**:
+  - Add a table of contents at the beginning of the README
+  - Organize sections in a logical flow (introduction, installation, configuration, usage, advanced topics, troubleshooting)
+  - Add section headers and improve formatting for better readability
+  - Ensure consistent formatting throughout the document
 
-- [x] Builders content loading (P2, S)
-  - Task: Validate resource presence for <Language>_GraphQL_Builders.txt; add clear error if missing.
-  - AC: Meaningful error when resource not found.
+### [ ] Add examples of common use cases
+- **Priority**: P2
+- **Effort**: M
+- **AC**:
+  - Add examples for common GraphQL operations (queries, mutations, subscriptions)
+  - Include examples with complex types and nested objects
+  - Show how to handle GraphQL variables and arguments
+  - Demonstrate integration with popular Java frameworks (Spring Boot, etc.)
 
-## 3. SchemaFetcher robustness
-- [x] Timeouts and retries (P0, M)
-  - Task: Configure request/connect timeouts; add limited retry with backoff for transient 5xx/IO errors.
-  - AC: Network hiccups handled; configurable via UserConfig.
+# Code Improvement Tasks
 
-- [x] Proper resource closing (P0, S)
-  - Task: Use try-with-resources for CloseableHttpClient/Response; ensure InputStream body is repeatable or buffered.
-  - AC: No resource leaks; static analysis clean.
+### [x] Enhance error handling and reporting
+- **Priority**: P1
+- **Effort**: M
+- **AC**:
+  - Improve error messages to be more descriptive and actionable
+  - Add more detailed logging throughout the code generation process
+  - Implement better handling of GraphQL schema errors
+  - Add option to output validation errors to a file
 
-- [x] Error reporting (P1, S)
-  - Task: Include status code and body snippet; parse GraphQL errors if present; attach headers info redacted.
-  - AC: Exceptions include actionable diagnostics.
+### [ ] Add support for additional languages
+- **Priority**: P2
+- **Effort**: L
+- **AC**:
+  - Implement Kotlin template support
+  - Add Scala template support
+  - Create a mechanism for community-contributed language templates
+  - Document the process for adding new language support
 
-## 4. UserConfig improvements
-- [x] Fix enum typo (P0, S)
-  - Task: Selector.Typescript currently labeled "Typescrypt"; correct to "TypeScript"; consider backward compatibility.
-  - AC: toString and getName return correct spelling; tests updated.
+### [ ] Improve code validation
+- **Priority**: P2
+- **Effort**: M
+- **AC**:
+  - Enhance the CodeValidator to detect more types of errors
+  - Add support for language-specific validation rules
+  - Implement warning levels (error, warning, info) for validation issues
+  - Add option to ignore specific validation rules
 
-- [x] Validation helpers (P1, S)
-  - Task: Add validate() to check url non-empty, class/package identifiers valid, dir path normalized.
-  - AC: Mojo fails early on invalid config with clear message.
-
-- [x] Headers parsing robustness (P1, S)
-  - Task: Parse on first ':' only; trim; skip invalid; log warnings; support empty values.
-  - AC: No IndexOutOfBounds on malformed header; tests added.
-
-- [x] Immutability and null-safety (P2, S)
-  - Task: Copy arrays to lists or defensive copies; avoid exposing internal arrays.
-  - AC: Public API safer; tests cover copies.
-
-- [x] Extensibility for additional languages (P2, M)
-  - Task: Allow template selection via TemplateRegistry; document how to add languages.
-  - AC: New language can be plugged by adding config and resources.
-
-## 5. Mojo (GQLCodeGeneratorMojo)
-- [x] Configuration validation and helpful logs (P1, S)
-  - Task: Validate servers list non-empty; log each server index; catch and wrap exceptions with context.
-  - AC: Clear, structured logs; build fails on invalid config before generation.
-
-## 7. Testing
-- [x] Add unit tests for core components (P0, M)
-  - Task: Tests for SchemaFetcher (with mock server), TemplateProcessor (with sample schema), UserConfig (headers parsing), CodeValidator.
-  - AC: CI green; coverage for critical paths; remove skipTests in surefire.
-
-- [x] Snapshot/golden-file tests for templates (P1, M)
-  - Task: Given a fixed schema JSON, assert generated code matches expected outputs.
-  - AC: Deterministic outputs with reviewable snapshots.
-
-## 8. Build, Quality, and CI
-- [x] Maven Enforcer and Java level (P1, S)
-  - Task: Add maven-enforcer-plugin to enforce minimum Maven and Java; consider lowering source/target to 11 or 17 for wider compatibility.
-  - AC: Clear failure if environment unsupported; documented in README.
-
-- [x] Static analysis and formatting (P1, S)
-  - Task: Add Spotless (or fmt) and Checkstyle; configure basic rules; add to CI.
-  - AC: Consistent formatting; PRs fail on violations. (Implemented via -Pci profile running spotless:check and checkstyle:check)
-
-- [x] Dependency updates (P2, S)
-  - Task: Bump dependencies to latest stable where safe (jackson, freemarker, maven plugin tools); consider Dependabot.
-  - AC: Build remains green; no security alerts.
-
-## 9. Documentation and DX
-- [x] README improvements (P1, S)
-  - Task: Add configuration examples (servers list, headers), minimal/advanced usage, troubleshooting, and template customization guide.
-  - AC: New users can run within minutes; examples verified.
+### [ ] Add integration tests
+- **Priority**: P1
+- **Effort**: L
+- **AC**:
+  - Create integration tests with real GraphQL schemas
+  - Test against different GraphQL server implementations
+  - Add tests for error conditions and edge cases
