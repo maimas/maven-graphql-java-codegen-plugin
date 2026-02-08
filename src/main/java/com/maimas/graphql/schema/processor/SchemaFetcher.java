@@ -3,7 +3,6 @@ package com.maimas.graphql.schema.processor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maimas.graphql.generator.UserConfig;
-import lombok.SneakyThrows;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -22,8 +21,7 @@ import java.util.stream.Collectors;
 
 public class SchemaFetcher {
 
-    @SneakyThrows
-    public static String download(final String gqlUrl, HashMap<String, String> httpHeaders, UserConfig cfg) {
+    public static String download(final String gqlUrl, HashMap<String, String> httpHeaders, UserConfig cfg) throws IOException {
         int maxRetries = cfg.getMaxRetries() != null ? cfg.getMaxRetries() : 0;
         int backoff = cfg.getRetryBackoffMs() != null ? cfg.getRetryBackoffMs() : 0;
         int connectTimeout = cfg.getConnectTimeoutMs() != null ? cfg.getConnectTimeoutMs() : 0;
@@ -35,10 +33,11 @@ public class SchemaFetcher {
                 .setSocketTimeout(socketTimeout)
                 .build();
 
-        try (CloseableHttpClient httpClient = HttpClients.custom()
+        CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultRequestConfig(requestConfig)
-                .build()) {
+                .build();
 
+        try {
             IOException lastIo = null;
             int attempt = 0;
             while (true) {
@@ -103,6 +102,12 @@ public class SchemaFetcher {
                     }
                     throw io;
                 }
+            }
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                // Ignore close exception
             }
         }
     }

@@ -7,7 +7,6 @@ import com.maimas.graphql.schema.model.SchemaModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
-import lombok.SneakyThrows;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -34,8 +33,7 @@ public class TemplateProcessor {
      *
      * @return - generated class content.
      */
-    @SneakyThrows
-    public String generate() {
+    public String generate() throws Exception {
         LOGGER.info("Starting code generation for " + userCfg.getResultClassName() + " in package " + userCfg.getResultClassPackage());
         LOGGER.info("Using language: " + userCfg.getLanguage().getName());
 
@@ -101,7 +99,7 @@ public class TemplateProcessor {
         }
     }
 
-    private HashMap<Object, Object> getContext() throws JsonProcessingException {
+    private HashMap<Object, Object> getContext() throws Exception {
         LOGGER.info("Fetching GraphQL schema from: " + userCfg.getUrl());
         try {
             String remoteGQLSchema = SchemaFetcher.download(userCfg.getUrl(), userCfg.getHttpHeaders(), userCfg);
@@ -163,8 +161,7 @@ public class TemplateProcessor {
         return config;
     }
 
-    @SneakyThrows
-    private String getGQLBuildersContent() {
+    private String getGQLBuildersContent() throws IOException {
         String resource = userCfg.getLanguage().getName() + "_GraphQL_Builders.txt";
         InputStream stream = TemplateProcessor.class.getClassLoader().getResourceAsStream(resource);
         if (stream == null) {

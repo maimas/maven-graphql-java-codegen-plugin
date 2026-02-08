@@ -2,7 +2,6 @@ package com.maimas.graphql.generator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 
 import java.io.File;
 import java.util.HashMap;
@@ -170,9 +169,12 @@ public class UserConfig {
         this.retryBackoffMs = retryBackoffMs;
     }
 
-    @SneakyThrows
     public String toString() {
-        return new ObjectMapper().writeValueAsString(this);
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize UserConfig to JSON", e);
+        }
     }
 
     public String[] getHeaders() {

@@ -37,7 +37,7 @@ public class SchemaFetcherTest {
     }
 
     @Test
-    void download_success_200_returnsBody() {
+    void download_success_200_returnsBody() throws Exception {
         // Given
         final String body = "{\"data\":{}}";
         server.createContext("/graphql", new FixedResponseHandler(200, body));
@@ -56,7 +56,7 @@ public class SchemaFetcherTest {
     }
 
     @Test
-    void download_200_with_errors_throws() {
+    void download_200_with_errors_throws() throws Exception {
         // Given
         final String body = "{\"errors\":[{\"message\":\"Bad query\",\"path\":[\"__schema\"]}]}";
         server.createContext("/graphql", new FixedResponseHandler(200, body));
@@ -75,7 +75,7 @@ public class SchemaFetcherTest {
     }
 
     @Test
-    void download_retries_on_5xx_then_succeeds() {
+    void download_retries_on_5xx_then_succeeds() throws Exception {
         // Given: first 500, then 200
         server.createContext("/graphql", new SequenceHandler(
                 new FixedResponseHandler(500, "oops"),

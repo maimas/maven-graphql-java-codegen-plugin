@@ -52,7 +52,7 @@ public class GenerationIntegrationTest {
     }
 
     @Test
-    void generate_happy_path_creates_file_and_valid_code() {
+    void generate_happy_path_creates_file_and_valid_code() throws Exception {
         // Serve the real introspection JSON from test resources
         server.createContext("/graphql", new ResourceResponder("/RemoteServiceGraphlqSchema.json"));
 
@@ -86,7 +86,7 @@ public class GenerationIntegrationTest {
     }
 
     @Test
-    void generate_with_ignored_warning_rule_succeeds_and_logs_warning() {
+    void generate_with_ignored_warning_rule_succeeds_and_logs_warning() throws Exception {
         server.createContext("/graphql", new ResourceResponder("/RemoteServiceGraphlqSchema.json"));
 
         UserConfig cfg = new UserConfig();

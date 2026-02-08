@@ -6,7 +6,7 @@
     <groupId>com.github.maimas</groupId>
     <artifactId>graphql-codegen-maven-plugin</artifactId>
     <version>3.0.1</version>
-    <packaging>maven-plugin</packaging>
+    <packaging>jar</packaging>
 
     <name>GraphQL code generator plugin.</name>
     <description>Maven plugin to generate GraphQL API from remote GraphQL service.</description>
@@ -48,6 +48,7 @@
         <maven-project.version>2.2.1</maven-project.version>
         <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+        <lombok.version>1.18.36</lombok.version>
     </properties>
 
 
@@ -122,7 +123,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -188,22 +189,6 @@
                         <include>**/*Test.java</include>
                     </includes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven-plugin-plugin.version}</version>
-                <configuration>
-                    <goalPrefix>graphql-codegen</goalPrefix>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-descriptor</id>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
 

@@ -22,7 +22,7 @@ public class TemplateProcessorTest {
      */
     @Disabled
     @Test
-    public void test_schema_generation() {
+    public void test_schema_generation() throws Exception {
         UserConfig userConfig = new UserConfig();
         userConfig.setUrl("http://localhost:8080/graphql");
         userConfig.setDir("./src/test/java/com/maimas/generated");
