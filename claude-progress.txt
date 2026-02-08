@@ -1,52 +1,52 @@
 === Session Progress Update ===
 
-Date: 2026-02-08 (Session 2)
-Feature: #2 - Compile project and run all tests - COMPLETED AND PASSING
+Date: 2026-02-08 (Session 3)
+Feature: #4 - Use Lombok for Getters and Setters in Model Classes - COMPLETED AND PASSING
 
-PREVIOUS SESSION WORK:
+PREVIOUS SESSION WORK (Sessions 1-2):
 1. Fixed compilation errors in SchemaFetcher.java
-   - Removed @SneakyThrows annotation
-   - Changed try-with-resources to explicit try-finally for CloseableHttpClient
-   - Method now properly declares "throws IOException"
+2. Removed Lombok @Data annotations from all model classes (12 files) - added explicit getters/setters
+3. Fixed @SneakyThrows usage in UserConfig.java and TemplateProcessor.java
+4. Fixed test compilation errors in SchemaFetcherTest, TemplateProcessorTest, GenerationIntegrationTest
+5. Removed Lombok 1.18.36 entirely (incompatible with Java 25)
+6. Feature #1 (Compile project): PASSING
+7. Feature #2 (Compile and run tests): PASSING
 
-2. Removed Lombok @Data annotations from all model classes (12 files)
+THIS SESSION WORK:
+1. Re-added Lombok with version 1.18.40 (now compatible with Java 25)
+   - Added lombok.version property (1.18.40) to pom.xml
+   - Added Lombok dependency with scope=provided
+   - Added annotationProcessorPaths to maven-compiler-plugin (required for JDK 23+)
+
+2. Refactored all 12 model classes to use @Getter/@Setter annotations:
    - SchemaModel.java, Data.java, Schema.java, QueryType.java, MutationType.java
    - SubscriptionType.java, Type.java, Field.java, FieldType.java, Arg.java
    - EnumValue.java, Directive.java
-   - Added explicit getters and setters to all classes
+   - Removed all explicit getter and setter methods
+   - Preserved all @JsonProperty annotations on fields
 
-3. Fixed @SneakyThrows usage in UserConfig.java and TemplateProcessor.java
+3. Special handling for boolean 'isDeprecated' fields:
+   - In Field.java and EnumValue.java, renamed field from 'isDeprecated' to 'deprecated'
+   - Kept @JsonProperty("isDeprecated") to maintain Jackson deserialization compatibility
+   - Lombok generates isDeprecated()/setDeprecated() for 'boolean deprecated' - matching original API
 
-4. Fixed test compilation errors in SchemaFetcherTest, TemplateProcessorTest, GenerationIntegrationTest
+4. Fixed Schema.java: changed package-private fields 'types' and 'directives' to private
 
-THIS SESSION WORK:
-1. Removed Lombok dependency entirely from pom.xml
-   - Java 25 is incompatible with Lombok 1.18.36 (ExceptionInInitializerError: TypeTag :: UNKNOWN)
-   - Removed lombok.version property
-   - Removed Lombok dependency from <dependencies>
-   - Removed annotation processor path from maven-compiler-plugin
-   - SchemaModel.java was already updated in previous session with explicit getters/setters
-
-2. Successfully ran all tests with `mvn test`:
-   - UserConfigTest: 3/3 PASSED
-   - CodeValidatorTest: 4/4 PASSED
-   - TemplateProcessorTest: 5/6 PASSED (1 intentionally @Disabled - requires running GraphQL server)
-   - SchemaFetcherTest: 3/3 PASSED
-   - GenerationIntegrationTest: 2/2 PASSED
-   - TOTAL: 17 passed, 0 failures, 0 errors, 1 skipped (intentionally @Disabled)
-
-BUILD STATUS:
-- mvn clean compile: SUCCESS
-- mvn test: SUCCESS - BUILD SUCCESS
-- Feature #2 marked as PASSING
+5. Verification:
+   - mvn clean compile: SUCCESS
+   - mvn test: SUCCESS - 18 tests run, 0 failures, 0 errors, 1 skipped (@Disabled)
+   - All @JsonProperty annotations preserved (38 total across all model classes)
+   - Feature #4 marked as PASSING
 
 FEATURE PROGRESS:
 - Feature #1 (Compile project): PASSING
 - Feature #2 (Compile and run tests): PASSING
-- Overall: 2/4 features passing (50%)
+- Feature #4 (Lombok refactoring): PASSING
+- Overall: 3/4 features passing (75%)
 
 NOTES:
+- Lombok 1.18.40 supports Java 25 (previous 1.18.36 did not)
+- JDK 23+ requires explicit annotation processor configuration in maven-compiler-plugin
+- Lombok Unsafe::objectFieldOffset warning is cosmetic, non-blocking
 - Java version: 25.0.2 (Homebrew OpenJDK)
 - Maven version: 3.9.12
-- Tests that start embedded HTTP servers (SchemaFetcherTest, GenerationIntegrationTest)
-  require sandbox disabled due to socket binding restrictions
