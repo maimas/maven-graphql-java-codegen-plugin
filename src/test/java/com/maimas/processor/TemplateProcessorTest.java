@@ -60,13 +60,13 @@ public class TemplateProcessorTest {
                         .lastName()
                         .status());
 
-        String expected = "{\r\n" +
-                "  \"operationName\" : null,\r\n" +
-                "  \"query\" : \"mutation($id: String! ){ resetPassword( id: $id ){ id firstName lastName status } }\",\r\n" +
-                "  \"variables\" : {\r\n" +
-                "    \"id\" : \"1234124\"\r\n" +
-                "  }\r\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"operationName\" : null,%n" +
+                "  \"query\" : \"mutation($id: String! ){ resetPassword( id: $id ){ id firstName lastName status } }\",%n" +
+                "  \"variables\" : {%n" +
+                "    \"id\" : \"1234124\"%n" +
+                "  }%n" +
+                "}");
 
         Assertions.assertEquals(expected, gqlQuery.toString());
         Assertions.assertEquals(new TypeReference<User>() {
@@ -87,14 +87,14 @@ public class TemplateProcessorTest {
                         .lastName()
                         .status());
 
-        String expected = "{\r\n" +
-                "  \"operationName\" : null,\r\n" +
-                "  \"query\" : \"mutation($id: String!, $rawPassword: String ){ resetPassword( id: $id, rawPassword: $rawPassword ){ id firstName lastName status } }\",\r\n" +
-                "  \"variables\" : {\r\n" +
-                "    \"id\" : \"1234124\",\r\n" +
-                "    \"rawPassword\" : \"123123\"\r\n" +
-                "  }\r\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"operationName\" : null,%n" +
+                "  \"query\" : \"mutation($id: String!, $rawPassword: String ){ resetPassword( id: $id, rawPassword: $rawPassword ){ id firstName lastName status } }\",%n" +
+                "  \"variables\" : {%n" +
+                "    \"id\" : \"1234124\",%n" +
+                "    \"rawPassword\" : \"123123\"%n" +
+                "  }%n" +
+                "}");
 
         Assertions.assertEquals(expected, gqlQuery.toString());
         Assertions.assertEquals(new TypeReference<User>() {
@@ -114,13 +114,13 @@ public class TemplateProcessorTest {
                         .lastName()
                         .status());
 
-        String expected = "{\r\n" +
-                "  \"operationName\" : null,\r\n" +
-                "  \"query\" : \"mutation($id: String! ){ resetPassword( id: $id ){ id firstName lastName status } }\",\r\n" +
-                "  \"variables\" : {\r\n" +
-                "    \"id\" : \"1234124\"\r\n" +
-                "  }\r\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"operationName\" : null,%n" +
+                "  \"query\" : \"mutation($id: String! ){ resetPassword( id: $id ){ id firstName lastName status } }\",%n" +
+                "  \"variables\" : {%n" +
+                "    \"id\" : \"1234124\"%n" +
+                "  }%n" +
+                "}");
 
         Assertions.assertEquals(expected, gqlQuery.toString());
         Assertions.assertEquals(new TypeReference<User>() {
@@ -141,14 +141,14 @@ public class TemplateProcessorTest {
                         .lastName()
                         .status());
 
-        String expected = "{\r\n" +
-                "  \"operationName\" : null,\r\n" +
-                "  \"query\" : \"mutation($id: String!, $rawPassword: String ){ resetPassword( id: $id, rawPassword: $rawPassword ){ id firstName lastName status } }\",\r\n" +
-                "  \"variables\" : {\r\n" +
-                "    \"id\" : \"1234124\",\r\n" +
-                "    \"rawPassword\" : \"123123\"\r\n" +
-                "  }\r\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"operationName\" : null,%n" +
+                "  \"query\" : \"mutation($id: String!, $rawPassword: String ){ resetPassword( id: $id, rawPassword: $rawPassword ){ id firstName lastName status } }\",%n" +
+                "  \"variables\" : {%n" +
+                "    \"id\" : \"1234124\",%n" +
+                "    \"rawPassword\" : \"123123\"%n" +
+                "  }%n" +
+                "}");
 
         Assertions.assertEquals(expected, gqlQuery.toString());
         Assertions.assertEquals(new TypeReference<User>() {
@@ -166,13 +166,13 @@ public class TemplateProcessorTest {
                         .lastName()
                         .status());
 
-        String expected = "{\r\n" +
-                "  \"operationName\" : null,\r\n" +
-                "  \"query\" : \"query($id: String! ){ findById( id: $id ){ id firstName lastName status } }\",\r\n" +
-                "  \"variables\" : {\r\n" +
-                "    \"id\" : \"1234124\"\r\n" +
-                "  }\r\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"operationName\" : null,%n" +
+                "  \"query\" : \"query($id: String! ){ findById( id: $id ){ id firstName lastName status } }\",%n" +
+                "  \"variables\" : {%n" +
+                "    \"id\" : \"1234124\"%n" +
+                "  }%n" +
+                "}");
 
         Assertions.assertEquals(expected, gqlQuery.toString());
         Assertions.assertEquals(new TypeReference<User>() {

@@ -118,7 +118,7 @@ public class TemplateProcessor {
                     "Please check that the GraphQL endpoint is correct and accessible. Details: " + e.getMessage(), e);
             }
 
-            if (schemaModel.getData() == null || schemaModel.getData().getSchema() == null) {
+            if (schemaModel == null || schemaModel.getData() == null || schemaModel.getData().getSchema() == null) {
                 LOGGER.severe("GraphQL schema is empty or missing required data");
                 throw new RuntimeException("Error: GraphQL schema is empty or missing required data. " +
                     "Please check that the GraphQL endpoint returns a valid schema with the expected structure.");
@@ -136,6 +136,8 @@ public class TemplateProcessor {
             LOGGER.info("GraphQL builders content loaded (" + buildersContent.length() + " bytes)");
 
             return context;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+             throw e;
         } catch (RuntimeException e) {
             // Enhance error message with more context and troubleshooting information
             String errorMsg = "Failed to fetch or process GraphQL schema from " + userCfg.getUrl() + ". ";
