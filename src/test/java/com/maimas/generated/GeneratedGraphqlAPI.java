@@ -434,7 +434,8 @@ public static class Types {
             rootNode.putRawValue("query", new RawValue(query));
             rootNode.putPOJO("variables", function.getArguments().toVariables());
 
-            return rootNode.toPrettyString();
+            // Normalize line endings to \n for cross-platform compatibility
+            return rootNode.toPrettyString().replace("\r\n", "\n");
         }
 
         public TypeReference<?> getReturnType() {
