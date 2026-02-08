@@ -36,4 +36,4 @@ jobs:
           OSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
           # If you use GPG signing (required by Sonatype), add your passphrase here:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+#          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
