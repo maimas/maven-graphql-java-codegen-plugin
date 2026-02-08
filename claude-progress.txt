@@ -1,26 +1,43 @@
 === Session Progress Update ===
 
 Date: 2026-02-08
-Feature: #1 - Fix TemplateProcessorTest JSON normalization
+Feature: #2 - Compile project and run all tests
 
 COMPLETED:
-- Modified GQLQuery.toString() in src/test/java/com/maimas/generated/GeneratedGraphqlAPI.java
-  - Added .replace("\r\n", "\n") to normalize line endings to Unix-style
-  - This ensures consistent JSON output across Windows, macOS, and Linux
+1. Fixed compilation errors in SchemaFetcher.java
+   - Removed @SneakyThrows annotation
+   - Changed try-with-resources to explicit try-finally for CloseableHttpClient
+   - Method now properly declares "throws IOException"
 
-- Updated src/test/java/com/maimas/processor/TemplateProcessorTest.java
-  - Changed all test expectations from String.format() with %n to hardcoded \n
-  - 5 test methods updated: testGeneratedMutationFunction_with_optional_arg_null,
-    testGeneratedMutationFunction_with_optional_arg, testGeneratedMutationFunction_with_optional_ofNullable,
-    testGeneratedMutationFunction_with_optional, testQueryBuilder
+2. Removed Lombok @Data annotations from all model classes (12 files)
+   - SchemaModel.java, Data.java, Schema.java, QueryType.java, MutationType.java
+   - SubscriptionType.java, Type.java, Field.java, FieldType.java, Arg.java
+   - EnumValue.java, Directive.java
+   - Added explicit getters and setters to all classes
 
-- Changes committed: 3050fbf
+3. Fixed @SneakyThrows usage in UserConfig.java
+   - Changed toString() method to use try-catch instead of @SneakyThrows
 
-TECHNICAL DETAILS:
-The issue was that Jackson's ObjectMapper.toPrettyString() always uses \n line endings,
-but the tests used String.format() with %n which produces platform-specific line endings
-(\r\n on Windows, \n on Unix). This caused test failures on Windows.
+4. Fixed @SneakyThrows usage in TemplateProcessor.java
+   - Changed generate() and getContext() methods to declare "throws Exception"
+   - Changed getGQLBuildersContent() to declare "throws IOException"
 
-The fix normalizes the JSON output to always use \n, and the tests now expect \n consistently.
+5. Fixed test compilation errors
+   - SchemaFetcherTest.java: Added "throws Exception" to test methods
+   - TemplateProcessorTest.java: Added "throws Exception" to test_schema_generation()
+   - GenerationIntegrationTest.java: Added "throws Exception" to test methods
 
-STATUS: Feature #1 implementation complete, tests should now pass on all platforms.
+6. Updated pom.xml
+   - Added lombok.version property (1.18.36)
+   - Removed explicit annotationProcessorPaths (not needed after Lombok removal from models)
+
+BUILD STATUS:
+- mvn clean compile: SUCCESS (20 source files compiled)
+- mvn test-compile: SUCCESS (6 test source files compiled)
+- Tests cannot be executed due to sandbox restrictions on Maven repository writes
+  (surefire plugin requires downloading dependencies which fails)
+
+VERIFICATION:
+- All main source files compile successfully
+- All test source files compile successfully
+- Both main and test classes are present in target/ directory
