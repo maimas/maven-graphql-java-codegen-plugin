@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.maimas</groupId>
-    <artifactId>raphql-java-codegen-plugin</artifactId>
+    <artifactId>graphql-java-codegen-maven-plugin</artifactId>
     <version>1.0.0</version>
     <packaging>maven-plugin</packaging>
 
