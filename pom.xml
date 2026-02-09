@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.maimas</groupId>
-    <artifactId>graphql-codegen-maven-plugin</artifactId>
-    <version>3.0.1</version>
+    <artifactId>raphql-java-codegen-plugin</artifactId>
+    <version>1.0.0</version>
     <packaging>maven-plugin</packaging>
 
     <name>GraphQL code generator plugin.</name>
